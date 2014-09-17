@@ -20,8 +20,9 @@ const static CGFloat kFontOfSize                   = 13;
 @interface MessageStatusBarWindow ()
 {
     UIWindow *previousKeyWindow;
-    CGFloat labelWidth;
-    CGFloat labelHeight;
+//    CGFloat labelWidth;
+//    CGFloat labelHeight;
+    CGSize messageLabelSize;
     CGFloat statusBarWidth;
 }
 @end
@@ -43,7 +44,7 @@ const static CGFloat kFontOfSize                   = 13;
     self = [super initWithFrame:CGRectZero];
     if (self) {
     
-        labelWidth = 0;
+
         statusBarWidth = kDefaultStatusBarWidth;
         
         self.windowLevel = UIWindowLevelStatusBar + 1.0f;
@@ -52,24 +53,29 @@ const static CGFloat kFontOfSize                   = 13;
 
         messageLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, statusBarWidth, kDefaultStatusBarHeight)];
         messageLabel.font = [UIFont systemFontOfSize:kFontOfSize];
-        messageLabel.textAlignment = NSTextAlignmentRight;
-        messageLabel.textColor = [UIColor blackColor];
+        messageLabel.textAlignment = NSTextAlignmentLeft;
+        messageLabel.textColor = [UIColor whiteColor];
         messageLabel.text = messageStr;
         messageLabel.numberOfLines = 1;
         messageLabel.backgroundColor = [UIColor clearColor];
         CGSize maximumLabelSize = CGSizeMake(statusBarWidth, kDefaultStatusBarHeight);
-        CGSize labelSize = [messageLabel sizeThatFits:maximumLabelSize];
-        labelWidth = labelSize.width;
-        labelHeight = labelSize.height;
-        statusBarWidth = labelWidth + 10;
+        messageLabelSize = [messageLabel sizeThatFits:maximumLabelSize];
+        CGFloat labelWidth = messageLabelSize.width;
+        CGFloat labelHeight = messageLabelSize.height;
+        statusBarWidth = labelWidth * 2;
         
         self.frame = CGRectMake(kInitStatusBarOriginX, 0, statusBarWidth, kDefaultStatusBarHeight);
-        messageLabel.frame = CGRectMake(statusBarWidth - labelWidth, (kDefaultStatusBarHeight - labelHeight)/2.0, labelWidth, labelSize.height);
+        messageLabel.frame = CGRectMake(5, (kDefaultStatusBarHeight - labelHeight)/2.0, labelWidth, labelHeight);
 
-        
         [self addSubview:messageLabel];
     }
     return self;
+}
+
+- (void)drawRect:(CGRect)rect
+{
+    [super drawRect:rect];
+    
 }
 
 - (UIWindow *)findKeyWindow
@@ -78,28 +84,27 @@ const static CGFloat kFontOfSize                   = 13;
     return window;
 }
 
+
+
 - (void)show
 {
     if (![self isKeyWindow])
 	{
 		previousKeyWindow = [self findKeyWindow];
         
-
+        CGFloat toValue = kInitStatusBarOriginX - 10;
+        POPSpringAnimation *onscreenAnimation = [POPSpringAnimation animationWithPropertyNamed:kPOPLayerPositionX];
+        onscreenAnimation.toValue = @(toValue);
+        onscreenAnimation.springBounciness = 10.f;
+        [self.layer pop_addAnimation:onscreenAnimation forKey:@"showMessage"];
+		[self makeKeyAndVisible];
+        
         //NOTE:
 //        [UIView animateWithDuration:0.3 delay:0 usingSpringWithDamping:0.7 initialSpringVelocity:0.7 options:0 animations:^{
 //            self.frame = CGRectMake(kInitStatusBarOriginX - statusBarWidth, 0, statusBarWidth, kDefaultStatusBarHeight);
 //        } completion:^(BOOL finish){
 //        }];
-
-        
-//        //NOTE:
-        CGFloat toValue = kInitStatusBarOriginX - CGRectGetMidX(self.bounds);
-        POPSpringAnimation *onscreenAnimation = [POPSpringAnimation animationWithPropertyNamed:kPOPLayerPositionX];
-        onscreenAnimation.toValue = @(toValue);
-        onscreenAnimation.springBounciness = 10.f;
-        [self.layer pop_addAnimation:onscreenAnimation forKey:@"showMessage"];
-        
-		[self makeKeyAndVisible];
+//		[self makeKeyAndVisible];
 	}
 }
 
