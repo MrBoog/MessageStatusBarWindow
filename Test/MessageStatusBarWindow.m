@@ -9,21 +9,21 @@
 #import "MessageStatusBarWindow.h"
 const static CGFloat kDefaultStatusBarHeight       = 20;
 const static CGFloat kDefaultStatusBarWidth        = 200;
-const static CGFloat kFontOfSize                   = 13;
+const static CGFloat kFontOfSize                   = 12;
 
 #define kInitStatusBarOriginX   [UIScreen mainScreen].bounds.size.width
 
 #define IOS7_OR_LATER           [[[UIDevice currentDevice] systemVersion] floatValue] >= 7.0
 
 #define StatusBarColor          [UIColor colorWithRed:255/255.0 green:127/255.0 blue:127/255.0 alpha:1.0]
+#define StatusBarStrokeColor    [UIColor colorWithRed:255/255.0 green:127/255.0 blue:127/255.0 alpha:1.0]
 
 @interface MessageStatusBarWindow ()
 {
     UIWindow *previousKeyWindow;
-//    CGFloat labelWidth;
-//    CGFloat labelHeight;
     CGSize messageLabelSize;
     CGFloat statusBarWidth;
+    CGFloat statusBarOriginX;
 }
 @end
 
@@ -44,12 +44,12 @@ const static CGFloat kFontOfSize                   = 13;
     self = [super initWithFrame:CGRectZero];
     if (self) {
     
-
+        statusBarOriginX = kInitStatusBarOriginX;
         statusBarWidth = kDefaultStatusBarWidth;
         
         self.windowLevel = UIWindowLevelStatusBar + 1.0f;
 		self.userInteractionEnabled = YES;
-		self.backgroundColor = StatusBarColor;
+		self.backgroundColor = [UIColor clearColor];
 
         messageLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, statusBarWidth, kDefaultStatusBarHeight)];
         messageLabel.font = [UIFont systemFontOfSize:kFontOfSize];
@@ -64,7 +64,7 @@ const static CGFloat kFontOfSize                   = 13;
         CGFloat labelHeight = messageLabelSize.height;
         statusBarWidth = labelWidth * 2;
         
-        self.frame = CGRectMake(kInitStatusBarOriginX, 0, statusBarWidth, kDefaultStatusBarHeight);
+        self.frame = CGRectMake(statusBarOriginX, 0, statusBarWidth, kDefaultStatusBarHeight);
         messageLabel.frame = CGRectMake(5, (kDefaultStatusBarHeight - labelHeight)/2.0, labelWidth, labelHeight);
 
         [self addSubview:messageLabel];
@@ -76,7 +76,17 @@ const static CGFloat kFontOfSize                   = 13;
 {
     [super drawRect:rect];
     
+    UIColor *fillColor = StatusBarColor;
+    UIBezierPath *roundedRectanglePath = [UIBezierPath bezierPathWithRoundedRect: CGRectMake(0, 0, statusBarWidth, kDefaultStatusBarHeight) cornerRadius: kDefaultStatusBarHeight/2.0];
+    [fillColor setFill];
+    [roundedRectanglePath fill];
+
+    UIColor *stokeColor = StatusBarStrokeColor;
+    [stokeColor setStroke];
+    roundedRectanglePath.lineWidth = 1;
+    [roundedRectanglePath stroke];
 }
+
 
 - (UIWindow *)findKeyWindow
 {
@@ -85,7 +95,7 @@ const static CGFloat kFontOfSize                   = 13;
 }
 
 
-
+#pragma mark - public method -
 - (void)show
 {
     if (![self isKeyWindow])

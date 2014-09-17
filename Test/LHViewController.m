@@ -23,7 +23,7 @@
 	// Do any additional setup after loading the view, typically from a nib.
     self.view.backgroundColor = [UIColor whiteColor];
     
-    messageWindow = [[MessageStatusBarWindow alloc] initWithMessage:@"您收到一条消息"];
+    messageWindow = [[MessageStatusBarWindow alloc] initWithMessage:@"您收到一条消息.不拉不拉"];
     
 }
 
